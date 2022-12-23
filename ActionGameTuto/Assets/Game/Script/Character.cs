@@ -13,10 +13,38 @@ public class Character : MonoBehaviour
     private PlayerInput _playerInput;
     private Animator _animator;
 
+    // Enemey
+    public bool IsPlayer = true;
+    private UnityEngine.AI.NavMeshAgent _navMeshAgent;
+    private Transform TargetPlayer;
+
+
     private void Awake() {
-        _cc = GetComponent<CharacterController>();
-        _playerInput = GetComponent<PlayerInput>();
+        _cc = GetComponent<CharacterController>(); 
         _animator = GetComponent<Animator>();
+
+        // Enemy
+        if(!IsPlayer){
+            _navMeshAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+            TargetPlayer = GameObject.FindWithTag("Player").transform;
+            _navMeshAgent.speed = MoveSpeed;
+        }else{
+            _playerInput = GetComponent<PlayerInput>();
+        }
+    }   
+
+    private void CalculateEnemyMovement(){
+        // enemy가 mainchar항해서 쫓아오는 경우
+        if (Vector3.Distance(TargetPlayer.position, transform.position) >= _navMeshAgent.stoppingDistance) {
+            _navMeshAgent.SetDestination(TargetPlayer.position);
+            _animator.SetFloat("Speed", 0.2f);
+        // enemy가 mainchar와 stoppingDistance보다 가까워져서 멈추는 경우
+        }else{
+            _navMeshAgent.SetDestination(transform.position);
+            _animator.SetFloat("Speed", 0f);
+        }
+        
+        #pragma warning restore format
     }
 
     private void CalculatePlayerMovement(){
@@ -37,17 +65,25 @@ public class Character : MonoBehaviour
     }
 
     private void FixedUpdate() {
-        CalculatePlayerMovement();
+        // 이 소스코드를 mainchar와 enemy가 같이 사용함
+        // 따라서 이 코드를 mainchar가 읽을 떄와 enemy가 읽을 때를 구분하여 작성
 
-        if(_cc.isGrounded == false){
-            _verticalVelocity = Gravity;
-        }else{
-            _verticalVelocity = Gravity * 0.3f;
+
+        if(IsPlayer)
+            CalculatePlayerMovement();
+        else
+            CalculateEnemyMovement();
+        
+        if(IsPlayer){
+            if(_cc.isGrounded == false){
+                _verticalVelocity = Gravity;
+            }else{
+                _verticalVelocity = Gravity * 0.3f;
+            }
+            _movementVelocity += _verticalVelocity * Vector3.up * Time.deltaTime;
+
+
+            _cc.Move(_movementVelocity);
         }
-        _movementVelocity += _verticalVelocity * Vector3.up * Time.deltaTime;
-
-
-        _cc.Move(_movementVelocity);
-         
     }
 }
