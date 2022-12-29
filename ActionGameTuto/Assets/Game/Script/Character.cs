@@ -6,14 +6,14 @@ public class Character : MonoBehaviour
 {
     public float MoveSpeed = 5f;
     public float Gravity = -9.8f;
-    public float _verticalVelocity;
 
+    private float _verticalVelocity;
     private CharacterController _cc;
     private Vector3 _movementVelocity;
     private PlayerInput _playerInput;
     private Animator _animator;
 
-    // Enemey
+    // if Enemey, IsPlayer = false
     public bool IsPlayer = true;
     private UnityEngine.AI.NavMeshAgent _navMeshAgent;
     private Transform TargetPlayer;
@@ -23,7 +23,7 @@ public class Character : MonoBehaviour
         _cc = GetComponent<CharacterController>(); 
         _animator = GetComponent<Animator>();
 
-        // Enemy
+        // Enemy  
         if(!IsPlayer){
             _navMeshAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
             TargetPlayer = GameObject.FindWithTag("Player").transform;
@@ -65,9 +65,8 @@ public class Character : MonoBehaviour
     }
 
     private void FixedUpdate() {
-        // 이 소스코드를 mainchar와 enemy가 같이 사용함
+        // 이 코드를 mainchar와 enemy가 같이 사용함
         // 따라서 이 코드를 mainchar가 읽을 떄와 enemy가 읽을 때를 구분하여 작성
-
 
         if(IsPlayer)
             CalculatePlayerMovement();
